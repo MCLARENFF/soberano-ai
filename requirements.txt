@@ -1,0 +1,4 @@
+pytelegrambotapi
+google-genai
+PyPDF2
+flask
