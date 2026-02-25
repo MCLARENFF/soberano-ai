@@ -77,9 +77,9 @@ def home():
                 
                 texto = texto[:4000] # Limite de segurança
                 
-                # Inteligência
+                # Inteligência (MOTOR 2.0 ATIVADO AQUI 🔥)
                 res = client.models.generate_content(
-                    model="gemini-1.5-flash",
+                    model="gemini-2.0-flash",
                     contents=f"Você é a Soberano AI, uma Auditora Jurídica. Analise este contrato de forma clara. 1. Inicie com 'STATUS: 🔴 ALTO RISCO' ou 'STATUS: 🟢 BAIXO RISCO'. 2. Liste 3 pontos de atenção ou possíveis golpes. Texto: {texto}"
                 )
                 veredicto = res.text
