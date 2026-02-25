@@ -9,7 +9,7 @@ app = Flask(__name__)
 GEMINI_KEY = os.environ.get("GEMINI_KEY")
 client = genai.Client(api_key=GEMINI_KEY)
 
-# 🎨 DESIGN DA PÁGINA (Interface Premium com Animação e JS)
+# 🎨 DESIGN DA PÁGINA (Interface Premium com Animação da Balança e JS)
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -46,29 +46,25 @@ HTML_TEMPLATE = """
         /* RODAPÉ */
         .footer { margin-top: 40px; color: #444; font-size: 0.9em; letter-spacing: 1px;}
 
-        /* --- ANIMAÇÃO DO MARTELO (JUSTIÇA SOBERANA) --- */
-        .loader-container { display: none; /* Escondido por padrão */ padding: 40px; }
-        .gavel-icon { width: 100px; height: 100px; fill: #00ffaa; animation: hammer-strike 1.2s ease-in-out infinite; transform-origin: 80% 80%; display: block; margin: 0 auto;}
-        .loading-text { color: #00ffaa; margin-top: 25px; font-size: 1.4em; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; animation: text-pulse 1.2s ease-in-out infinite; }
+        /* --- ANIMAÇÃO PREMIUM (BALANÇA DA JUSTIÇA SOBERANA) --- */
+        .loader-container { display: none; padding: 40px; }
+        .gavel-icon { width: 120px; height: 120px; fill: #00ffaa; animation: glow-pulse 1.5s ease-in-out infinite; display: block; margin: 0 auto;}
+        .loading-text { color: #00ffaa; margin-top: 25px; font-size: 1.4em; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; animation: text-pulse 1.5s ease-in-out infinite; }
 
-        @keyframes hammer-strike {
-            0%, 100% { transform: rotate(0deg); }
-            30% { transform: rotate(-45deg); } /* Levanta */
-            50% { transform: rotate(5deg); } /* Bate forte */
-            70% { transform: rotate(0deg); } /* Retorna */
+        @keyframes glow-pulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(0, 255, 170, 0.4)); }
+            50% { transform: scale(1.08); filter: drop-shadow(0 0 35px rgba(0, 255, 170, 1)); }
         }
         @keyframes text-pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
     </style>
     <script>
-        // Função para mostrar a animação quando clica no botão
         function showLoader() {
             const fileInput = document.getElementById('fileUpload');
             if (fileInput.files.length > 0) {
-                document.getElementById('form-container').style.display = 'none'; // Esconde o formulário
-                document.getElementById('loader-area').style.display = 'block'; // Mostra o martelo
+                document.getElementById('form-container').style.display = 'none';
+                document.getElementById('loader-area').style.display = 'block';
             }
         }
-        // Função de Copiar e Colar
         function copyText() {
             const text = document.getElementById('veredicto-text').innerText;
             navigator.clipboard.writeText(text).then(() => {
@@ -82,9 +78,6 @@ HTML_TEMPLATE = """
                     btn.style.background = '#222';
                     btn.style.color = '#00ffaa';
                 }, 3000);
-            }).catch(err => {
-                console.error('Erro ao copiar: ', err);
-                alert('Erro ao copiar texto. Seu navegador pode não suportar isso.');
             });
         }
     </script>
@@ -107,7 +100,7 @@ HTML_TEMPLATE = """
         </div>
 
         <div id="loader-area" class="loader-container">
-            <svg class="gavel-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21.41 12.41l-1.41-1.41-3.59 3.59-1.41-1.41 3.59-3.59-1.41-1.41-3.59 3.59-1.41-1.41 1.17-1.17-2.83-2.83-6.36 6.36 2.83 2.83 1.17-1.17 1.41 1.41-3.59 3.59 1.41 1.41 3.59-3.59 1.41 1.41 3.59-3.59 1.41 1.41 3.59-3.59zM10 4c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+            <svg class="gavel-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2L1 7v2h2v7.1c-1.2.5-2 1.6-2 2.9 0 1.7 1.3 3 3 3s3-1.3 3-3c0-1.3-.8-2.4-2-2.9V9h14v7.1c-1.2.5-2 1.6-2 2.9 0 1.7 1.3 3 3 3s3-1.3 3-3c0-1.3-.8-2.4-2-2.9V9h2V7L12 2zm-8 17c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zm16 0c-.6 0-1-.4-1-1s.4-1 1-1 1 .4 1 1-.4 1-1 1zm-7-9h-2V5.8L12 4.4l2.5 1.1V10z"/></svg>
             <div class="loading-text">ANALISANDO JUSTIÇA SOBERANA...</div>
         </div>
         {% endif %}
@@ -144,10 +137,10 @@ def home():
                 # Extração
                 pdf_reader = PyPDF2.PdfReader(file)
                 texto = ""
-                for i in range(min(len(pdf_reader.pages), 3)): # Lê as 3 primeiras páginas
+                for i in range(min(len(pdf_reader.pages), 3)): 
                     texto += pdf_reader.pages[i].extract_text()
                 
-                texto = texto[:4000] # Limite de segurança
+                texto = texto[:4000] 
                 
                 # Inteligência
                 res = client.models.generate_content(
@@ -162,7 +155,6 @@ def home():
             
     return render_template_string(HTML_TEMPLATE, result=veredicto)
 
-# 🚀 INICIALIZAÇÃO DO SERVIDOR WEB
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
